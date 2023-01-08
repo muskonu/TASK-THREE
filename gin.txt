@@ -1,0 +1,106 @@
+              ‪gin
+
+1.b, _ := c.GetRawData()  // 从c.Request.Body读取请求数据
+(同resp.body.read)
+
+2.//加载静态资源，例如网页的css、js
+  router.Static("/static", "./static")
+//router.Static第一个参数为路由匹配地址，第二个参数为静态资源相对路径
+
+
+//加载单个静态文件，一般是上传的资源，例如用户上传的图片
+router.StaticFS("/upload", http.Dir("upload"))
+
+
+3.engine.LoadHTMLGlob("views/**/*")
+views--
+            |
+            |--default--
+            |              |
+            |              |--index.html
+            |
+　　　    　　|--user--
+                			|
+　　　　　          			|-- login.html    
+（二者都加载）
+views--
+            |
+            |--index.html
+            |
+　　　    　　|--user--
+                           |
+　　　　　          			|-- login.html  
+(只加载login.html)
+
+4.form表单常用属性
+(1)action：url 地址，服务器接收表单数据的地址
+
+(2)method：提交服务器的http方法，一般为post和get
+
+(3)name：name属性的唯一性
+
+(4)enctype: 表单数据提交时使用的编码类型，默认使用"pplication/x-www-form-urlencoded"，
+如果是使用POST请求，则请求头中的content-type指定值就是该值。如果表单中有上传文件，编码类型
+需要使用"multipart/form-data"，类型，才能完成传递文件数据。
+
+5.中间件
+c.next()调用后续的处理函数
+c.abort()阻止调用后续的处理函数(all)
+
+6.
+gin.New()创造一个没有任何中间件的路由
+r.Use()使用中间件
+
+7.中间件中开启goroutine不能使用原context,需要使用c.Copy()
+
+8.什么是Cookie:
+　　　　Cookie意为“甜饼”，是由W3C组织提出，最早由Netscape社区发展的一种机制。目前Cookie已经成为标准，
+	所有的主流浏览器如IE、Netscape、Firefox、Opera等都支持Cookie。
+　　　　Cookie实际上是一小段的文本信息。客户端请求服务器，如果服务器需要记录该用户状态，就使用response向
+	客户端浏览器颁发一个Cookie。
+　　　　客户端浏览器会把Cookie保存起来。当浏览器再请求该网站时，浏览器把请求的网址连同该Cookie一同提交给
+	服务器。服务器检查该Cookie，以此来辨认用户状态。服务器还可以根据需要修改Cookie的内容。
+
+　　什么是Session:
+　　　　除了使用Cookie，Web应用程序中还经常使用Session来记录客户端状态。Session是服务器端使用的一种记
+	录客户端状态的机制，使用上比Cookie简单一些，相应的也增加了服务器的存储压力。
+　　　　Session是另一种记录客户状态的机制，不同的是Cookie保存在客户端浏览器中，而Session保存在服务器上。
+　　　　客户端浏览器访问服务器的时候，服务器把客户端信息以某种形式记录在服务器上。这就是Session。客户端浏
+	览器再次访问时只需要从该Session中查找该客户的状态就可以了。
+
+　　cookie和session的区别:
+　　　　1>.cookie数据存放在客户的浏览器上，session数据放在服务器上(可以放在文件，数据库或者内存都可以);
+　　　　2>.cookie不是很安全，别人可以分析存放在本地的COOKIE并进行COOKIE欺骗考虑到安全应当使用session;
+　　　　3>.两者最大的区别在于生存周期，一个是IE启动到IE关闭.(浏览器页面一关 ,session就消失了)，一个是预先设置的生存周期，或永久的保存于本地的文件。(cookie)
+　　　　4>.session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能考虑到减轻服务器性能方面，应当使用cookie;
+　　　　5>.单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存20个cookie(Session对象没有对存储的数据量的限制，其中可以保存更为复杂的数据类型);
+　　　　综上所述,如果说Cookie机制是通过检查客户身上的“通行证”来确定客户身份的话，那么Session机制就是通过
+	检查服务器上的“客户明细表”来确认客户身份。Session相当于程序在服务器上建立的一份客户档案，客户来访的时候只需要查询客户档案表就可以了。
+
+　　温馨提示:
+　　　　Session信息是存放在server端，但session id是存放在client cookie的
+
+9.有两个常用的传入变量的类型。一个是struct，在模板内可以读取该struct的字段（对外暴露的属性）来进行渲染。还有一个是map[string]interface{}，
+在模板内可以使用key获取对应的value来进行渲染
+
+10.
+		gorm
+1.
+db.Create(user)
+db.Save(user)
+
+2.
+db.Model是做事情的普通方法。它允许您告诉gorm该操作与哪个模型结构相关。
+它并不总是需要的，例如，使用正确的结构类型的简单查找将自动推断模型。
+
+3.
+当使用struct查询时，GORM将只查询那些具有相同字段的结构体
+db.Where(&User{Name: "zhangyang", Age: 20}).First(&user)
+ SELECT * FROM users WHERE name = "zhangyang" AND age = 20 LIMIT 1;
+
+4.
+(1)删除所有匹配记录
+db.Where("email LIKE ?", "%jinzhu%").Delete(Email{})
+ DELETE from emails where email LIKE "%jinhu%";
+(2) 删除存在的记录
+db.Delete(&email)
